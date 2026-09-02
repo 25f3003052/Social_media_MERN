@@ -1,0 +1,57 @@
+import User from "../models/user.model.js"
+//Register Controller 
+
+export const registerUser =async (req ,res)=>{
+    try{
+
+        const {name , email , password , username } = req.body
+        //mdn website for status code 
+        
+        //all fields present
+        if(!username || !email || !password || !name){
+            return res.status(400).json({message : "All fileds Required"})
+        } 
+        
+        //password should be greater than 6 char 
+        if(password.length < 6 ){
+            return res.status(400).json({message : "Password Length Should Be Greater Than 6"})
+        }
+        
+        //if the email or username already exists 
+        
+        
+        
+        const userNameExists = await User.findOne({username})
+        
+        if(userNameExists){
+            return res.status(409).json({message : "User already Exists"})
+        }
+        
+        const userEmailExists = await User.findOne({email})
+
+        if(userEmailExists){
+            return res.status(409).json({message : "email already Exists"})
+        }
+
+
+        const newUser = await User.create({
+            name,
+            username,
+            email,
+            password
+        })
+
+        res.status(201).json({message : "User Registered" , user :newUser })
+
+        
+
+
+    }
+    catch(error){
+        res.status(500).json({message: "Integernal Server Error " , error : error})
+
+    }
+
+
+}
+
