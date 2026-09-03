@@ -36,7 +36,7 @@ export const registerUser =async (req ,res)=>{
         
         //Password Security can only be used if we add a salt or error
         
-        const salt =await bcrypt.genSalt(10)
+        const salt =await bcrypt.genSalt(12)
         
         //salt for reference
         
@@ -70,7 +70,7 @@ export const registerUser =async (req ,res)=>{
 }
 
 
-const loginUser = async (req, res)=>{
+export const loginUser = async (req, res)=>{
     try{
         const {email , password } = req.body
         const user = await User.findOne({email})
