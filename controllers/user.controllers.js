@@ -35,36 +35,63 @@ export const registerUser =async (req ,res)=>{
         }
         
         //Password Security can only be used if we add a salt or error
-
+        
         const salt =await bcrypt.genSalt(10)
         
         //salt for reference
-
+        
         console.log(salt);
-
+        
         const  hashedPassword = await bcrypt.hash(password , salt)
-
+        
         console.log(hashedPassword);
         
-
+        
         const newUser = await User.create({
             name,
             username,
             email,
             password : hashedPassword
         })
-
-        res.status(201).json({message : "User Registered" , user :newUser })
-
         
-
-
+        return res.status(201).json({message : "User Registered" , user :newUser })
+        
+        
+        
+        
     }
     catch(error){
-        res.status(500).json({message: "Integernal Server Error " , error : error})
-
+        return res.status(500).json({message: "Integernal Server Error " , error : error})
+        
+        
     }
+    
+    
+}
 
 
+const loginUser = async (req, res)=>{
+    try{
+        const {email , password } = req.body
+        const user = await User.findOne({email})
+        
+        if(!email ){
+            
+            return res.status(404).json({message : "User not found"})
+        }
+        
+        const passwordCheck = bcrypt.compare(password , user.password)
+        
+        console.log(passwordCheck)
+        
+        if(!passwordCheck){
+            return res.status(404).json({message : "Password is incorrect"})
+        }
+        
+        return res.status(200).json({message : "USER LOGGED IN"})
+        
+    }catch(error){
+        return res.status(500).json({message: "Integernal Server Error " , error : error})
+    }
 }
 
