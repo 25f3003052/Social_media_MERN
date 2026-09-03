@@ -1,6 +1,12 @@
 import User from "../models/user.model.js"
 import bcrypt from "bcrypt"
+import { genToken } from "../utils/generateToken.js"
 //Register Controller 
+
+const cookieOptions = {
+    httpOnly : true, 
+    secure : true
+}
 
 export const registerUser =async (req ,res)=>{
     try{
@@ -40,11 +46,11 @@ export const registerUser =async (req ,res)=>{
         
         //salt for reference
         
-        console.log(salt);
+        // console.log(salt);
         
         const  hashedPassword = await bcrypt.hash(password , salt)
         
-        console.log(hashedPassword);
+        // console.log(hashedPassword);
         
         
         const newUser = await User.create({
@@ -53,12 +59,22 @@ export const registerUser =async (req ,res)=>{
             email,
             password : hashedPassword
         })
+
+        //token - JWT - access Tocken 
+
+        // newUser._id
+
+        const token = genToken(newUser._id)
+
+        // console.log(token);
+
+        res.cookie("token" , token , cookieOptions , secure)
+
+
         
         return res.status(201).json({message : "User Registered" , user :newUser })
         
-        
-        
-        
+
     }
     catch(error){
         return res.status(500).json({message: "Integernal Server Error " , error : error})
