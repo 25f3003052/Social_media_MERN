@@ -1,4 +1,5 @@
 import User from "../models/user.model.js"
+import bcrypt from "bcrypt"
 //Register Controller 
 
 export const registerUser =async (req ,res)=>{
@@ -19,7 +20,7 @@ export const registerUser =async (req ,res)=>{
         
         //if the email or username already exists 
         
-        
+         
         
         const userNameExists = await User.findOne({username})
         
@@ -32,13 +33,25 @@ export const registerUser =async (req ,res)=>{
         if(userEmailExists){
             return res.status(409).json({message : "email already Exists"})
         }
+        
+        //Password Security can only be used if we add a salt or error
 
+        const salt =await bcrypt.genSalt(10)
+        
+        //salt for reference
+
+        console.log(salt);
+
+        const  hashedPassword = await bcrypt.hash(password , salt)
+
+        console.log(hashedPassword);
+        
 
         const newUser = await User.create({
             name,
             username,
             email,
-            password
+            password : hashedPassword
         })
 
         res.status(201).json({message : "User Registered" , user :newUser })
