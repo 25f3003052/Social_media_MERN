@@ -2,6 +2,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 import dotevn from 'dotenv'
 import userRoutes  from './routes/user.routes.js'
+import cookieParser from 'cookie-parser'
 
 const app = express()
 
@@ -15,7 +16,9 @@ mongoose.connect(process.env.dbUrl).then(() => {
     console.log(err);
 })
 
+
 app.use(express.json())
+app.use(cookieParser())
 app.use('/users' , userRoutes)
 
 
