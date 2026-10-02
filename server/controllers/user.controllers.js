@@ -25,8 +25,8 @@ export const registerUser =async (req ,res)=>{
         }
         
         //if the email or username already exists 
-        
-         
+
+        // whenever creating a variable inside a function async the main function and await the variables created within it 
         
         const userNameExists = await User.findOne({username})
         
@@ -39,20 +39,18 @@ export const registerUser =async (req ,res)=>{
         if(userEmailExists){
             return res.status(409).json({message : "email already Exists"})
         }
+
+
+
         
         //Password Security can only be used if we add a salt or error
+        //salting
         
         const salt =await bcrypt.genSalt(12)
         
-        //salt for reference
-        
-        // console.log(salt);
         
         const  hashedPassword = await bcrypt.hash(password , salt)
-        
-        // console.log(hashedPassword);
-        
-        
+                
         const newUser = await User.create({
             name,
             username,
@@ -60,15 +58,21 @@ export const registerUser =async (req ,res)=>{
             password : hashedPassword
         })
 
+
+
+
+
         //token - JWT - access Tocken 
 
         // newUser._id
 
         const token = genToken(newUser._id)
 
-        // console.log(token);
+        console.log(token);
 
-        res.cookie("token" , token , cookieOptions , secure)
+        // cookie
+
+        res.cookie("token" , token , cookieOptions )   //display_name , token_variable , cookieOptions
 
 
         
@@ -77,9 +81,9 @@ export const registerUser =async (req ,res)=>{
 
     }
     catch(error){
-        return res.status(500).json({message: "Integernal Server Error " , error : error})
+        return res.status(500).json({message: "Internal Server Error " , error : error})
         
-        
+
     }
     
     
@@ -89,14 +93,20 @@ export const registerUser =async (req ,res)=>{
 export const loginUser = async (req, res)=>{
     try{
         const {email , password } = req.body
+
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" })
+        }
+
         const user = await User.findOne({email})
         
-        if(!email ){
+        if(!user ){
             
             return res.status(404).json({message : "User not found"})
+
         }
         
-        const passwordCheck = bcrypt.compare(password , user.password)
+        const passwordCheck =await bcrypt.compare(password , user.password)
         
         console.log(passwordCheck)
         
@@ -107,7 +117,7 @@ export const loginUser = async (req, res)=>{
         return res.status(200).json({message : "USER LOGGED IN"})
         
     }catch(error){
-        return res.status(500).json({message: "Integernal Server Error " , error : error})
+        return res.status(500).json({message: "Internal Server Error " , error : error})
     }
 }
 

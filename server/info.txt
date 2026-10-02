@@ -1,0 +1,74 @@
+"type": "module", in package.json for direct imports and exports 
+.env for environment var 
+.gitignore to ignore some files from pushing on git 
+nodemon for continuously running the server even after changes 
+bcrypt for password hashing and salting 
+JWT json web tokens npm i jsonwebtoken JWT_SECRET in .env can be any string but once created never change it on production level
+JWT inside cookies
+cookie parser used for js to read cookie stored in text format to be read in object format npm i cookie-parser 
+download npm install react-router-dom
+npm  i axios to handle sign up log in 
+Axios is used to make HTTP requests from your JavaScript code to a server/API.
+Think of it like:
+React/Frontend → Axios → Backend API → Database
+
+
+npm i cors 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

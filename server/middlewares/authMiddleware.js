@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken"
 import User from "../models/user.model.js"
 
 
-export const isAuthenticated = async(req, res)=>{
+export const isAuthenticated = async (req, res , next )=>{
     const token = req.cookies.token
 
     if(!token ){
@@ -12,20 +12,19 @@ export const isAuthenticated = async(req, res)=>{
     
     const decoded = jwt.verify(token , process.env.JWT_SECRET)
     
-    // console.log(decoded);
+    console.log(decoded);
     
     const user = await User.findById(decoded.userId)
     
     if(!user){
-        res.status(404).json({message : "User Not Found TOken Invalid"})
+         res.status(404).json({message : "User Not Found Token Invalid"})
     }
 
     req.user = user 
 
-    // console.log(user);
+    console.log(user);
 
-    next()
-
+    next()  //if middle ware is passed the go to the next function 
 
 }
 
