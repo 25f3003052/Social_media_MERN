@@ -1,61 +1,64 @@
 import User from "../models/user.model.js"
 import bcrypt from "bcrypt"
 import { genToken } from "../utils/generateToken.js"
-//Register Controller 
 
 const cookieOptions = {
-    httpOnly : true, 
-    secure : true
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    maxAge: 10 * 24 * 60 * 60 * 1000
 }
 
-export const registerUser =async (req ,res)=>{
-    try{
+//Register Controller 
 
-        const {name , email , password , username } = req.body
+export const registerUser = async (req, res) => {
+    try {
+
+        const { name, email, password, username } = req.body
         //mdn website for status code 
-        
+
         //all fields present
-        if(!username || !email || !password || !name){
-            return res.status(400).json({message : "All fileds Required"})
-        } 
-        
-        //password should be greater than 6 char 
-        if(password.length < 6 ){
-            return res.status(400).json({message : "Password Length Should Be Greater Than 6"})
+        if (!username || !email || !password || !name) {
+            return res.status(400).json({ message: "All fields required" })
         }
-        
+
+        //password should be greater than 6 char 
+        if (password.length < 6) {
+            return res.status(400).json({ message: "Password length should be greater than 6" })
+        }
+
         //if the email or username already exists 
 
         // whenever creating a variable inside a function async the main function and await the variables created within it 
-        
-        const userNameExists = await User.findOne({username})
-        
-        if(userNameExists){
-            return res.status(409).json({message : "User already Exists"})
-        }
-        
-        const userEmailExists = await User.findOne({email})
 
-        if(userEmailExists){
-            return res.status(409).json({message : "email already Exists"})
+        const userNameExists = await User.findOne({ username })
+
+        if (userNameExists) {
+            return res.status(409).json({ message: "User already exists" })
         }
 
+        const userEmailExists = await User.findOne({ email })
+
+        if (userEmailExists) {
+            return res.status(409).json({ message: "Email already exists" })
+        }
 
 
-        
+
+
         //Password Security can only be used if we add a salt or error
         //salting
-        
-        const salt =await bcrypt.genSalt(12)
-        
-        
-        const  hashedPassword = await bcrypt.hash(password , salt)
-                
+
+        const salt = await bcrypt.genSalt(12)
+
+
+        const hashedPassword = await bcrypt.hash(password, salt)
+
         const newUser = await User.create({
             name,
             username,
             email,
-            password : hashedPassword
+            password: hashedPassword
         })
 
 
@@ -68,56 +71,69 @@ export const registerUser =async (req ,res)=>{
 
         const token = genToken(newUser._id)
 
-        console.log(token);
-
-        // cookie
-
-        res.cookie("token" , token , cookieOptions )   //display_name , token_variable , cookieOptions
+        res.cookie('token', token, cookieOptions)   //display_name , token_variable , cookieOptions
 
 
-        
-        return res.status(201).json({message : "User Registered" , user :newUser })
-        
+
+        return res.status(201).json({
+            message: "User Registered",
+            user: {
+                _id: newUser._id,
+                name: newUser.name,
+                email: newUser.email,
+                username: newUser.username
+            }
+        })
+
 
     }
-    catch(error){
-        return res.status(500).json({message: "Internal Server Error " , error : error})
-        
+    catch (error) {
+        return res.status(500).json({ message: "Internal Server Error", error: error.message })
+
 
     }
-    
-    
+
+
 }
 
 
-export const loginUser = async (req, res)=>{
-    try{
-        const {email , password } = req.body
+export const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body
 
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required" })
         }
 
-        const user = await User.findOne({email})
-        
-        if(!user ){
-            
-            return res.status(404).json({message : "User not found"})
+        const user = await User.findOne({ email })
+
+        if (!user) {
+
+            return res.status(404).json({ message: "User not found" })
 
         }
-        
-        const passwordCheck =await bcrypt.compare(password , user.password)
-        
-        console.log(passwordCheck)
-        
-        if(!passwordCheck){
-            return res.status(404).json({message : "Password is incorrect"})
+
+        const passwordCheck = await bcrypt.compare(password, user.password)
+
+        if (!passwordCheck) {
+            return res.status(401).json({ message: "Password is incorrect" })
         }
-        
-        return res.status(200).json({message : "USER LOGGED IN"})
-        
-    }catch(error){
-        return res.status(500).json({message: "Internal Server Error " , error : error})
+
+        const token = genToken(user._id)
+        res.cookie('token', token, cookieOptions)
+
+        return res.status(200).json({
+            message: "USER LOGGED IN",
+            userData: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                username: user.username
+            }
+        })
+
+    } catch (error) {
+        return res.status(500).json({ message: "Internal Server Error", error: error.message })
     }
 }
 
